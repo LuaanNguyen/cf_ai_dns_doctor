@@ -9,9 +9,10 @@ class_name = "DomainHistory"
 script_name = "dns-doctor"
 
 # Durable Object migration (required for first deployment)
+# Using new_sqlite_classes for free plan compatibility
 [[migrations]]
 tag = "v1"
-new_classes = ["DomainHistory"]
+new_sqlite_classes = ["DomainHistory"]
 
 # Workers AI binding (for Llama 3.3)
 [ai]

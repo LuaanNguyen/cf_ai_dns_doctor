@@ -8,15 +8,18 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["dns", "cloudflare", "workers", "ai"],
+  "keywords": [
+    "dns",
+    "cloudflare",
+    "workers",
+    "ai"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241106.0",
     "@types/node": "^20.10.0",
     "typescript": "^5.3.3",
-    "wrangler": "^3.19.0"
-  },
-  "dependencies": {}
+    "wrangler": "^4.51.0"
+  }
 }
-
