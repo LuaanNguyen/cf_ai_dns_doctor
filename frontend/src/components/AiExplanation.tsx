@@ -1,4 +1,4 @@
-import { AIExplanation } from '../types';
+import { AIExplanation } from "../types";
 
 interface AiExplanationProps {
   explanation: AIExplanation;
@@ -6,19 +6,19 @@ interface AiExplanationProps {
 
 export default function AiExplanation({ explanation }: AiExplanationProps) {
   const getSeverityColor = (severity: number) => {
-    if (severity >= 8) return 'bg-red-100 text-red-800 border-red-300';
-    if (severity >= 5) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    return 'bg-blue-100 text-blue-800 border-blue-300';
+    if (severity >= 8) return "bg-red-100 text-red-800 border-red-300";
+    if (severity >= 5) return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    return "bg-blue-100 text-blue-800 border-blue-300";
   };
 
   const getSeverityLabel = (severity: number) => {
-    if (severity >= 8) return 'Critical';
-    if (severity >= 5) return 'Warning';
-    return 'Info';
+    if (severity >= 8) return "Critical";
+    if (severity >= 5) return "Warning";
+    return "Info";
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
       <h2 className="text-2xl font-semibold mb-4">AI Analysis</h2>
 
       {explanation.summary && (
@@ -34,11 +34,17 @@ export default function AiExplanation({ explanation }: AiExplanationProps) {
           {explanation.issues.map((issue, idx) => (
             <div
               key={idx}
-              className={`border rounded-lg p-4 ${getSeverityColor(issue.severity)}`}
+              className={`border rounded-lg p-4 ${getSeverityColor(
+                issue.severity
+              )}`}
             >
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-semibold">{issue.issue}</h4>
-                <span className={`px-2 py-1 text-xs rounded ${getSeverityColor(issue.severity)}`}>
+                <span
+                  className={`px-2 py-1 text-xs rounded ${getSeverityColor(
+                    issue.severity
+                  )}`}
+                >
                   {getSeverityLabel(issue.severity)} ({issue.severity}/10)
                 </span>
               </div>
@@ -52,7 +58,9 @@ export default function AiExplanation({ explanation }: AiExplanationProps) {
                   <h5 className="font-medium mb-2">Steps to Fix:</h5>
                   <ol className="list-decimal list-inside space-y-1">
                     {issue.steps.map((step, stepIdx) => (
-                      <li key={stepIdx} className="opacity-90">{step}</li>
+                      <li key={stepIdx} className="opacity-90">
+                        {step}
+                      </li>
                     ))}
                   </ol>
                 </div>
@@ -68,4 +76,3 @@ export default function AiExplanation({ explanation }: AiExplanationProps) {
     </div>
   );
 }
-
