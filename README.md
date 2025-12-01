@@ -1,6 +1,8 @@
-# Cloudflare-native DNS Doctor
+# DNS Doctor
 
-This application performs comprehensive DNS analysis, provides recommendations, and stores diagnostic history using Cloudflare's Infrastructure.
+DNS Doctor is an diagnostic tool that helps you identify and fix DNS configuration issues for any domain. Simply paste a domain name or URL into the search box, and the application will perform a comprehensive analysis of your DNS records across multiple resolvers (Cloudflare, Google, Quad9). It checks for common misconfigurations like missing IPv6 records, email setup problems, SPF syntax errors, and propagation issues.
+
+**Motivation:** DNS has become one of the most critical single points of failure in modern web infrastructure. Recent high-profile outages have demonstrated how DNS misconfigurations can bring down entire services, affecting millions of users. DNS Doctor makes it easy for anyone to identify and fix these issues before they cause downtime, ensuring your domain is properly configured and resilient.
 
 Built w/ [Cloudflare Workers](https://workers.cloudflare.com/), [Workers AI](https://developers.cloudflare.com/workers-ai/), [Durable Objects](https://developers.cloudflare.com/durable-objects/), and [Pages](https://developers.cloudflare.com/pages/).
 
@@ -92,18 +94,6 @@ Retrieves diagnostic history for a domain.
 ### POST `/api/dns/store`
 
 Stores diagnostic results (called internally by the worker).
-
-## Technologies Used
-
-- **Cloudflare Workers**: Serverless runtime for DNS queries and analysis
-- **Workers AI**: Llama 3.3 for AI-powered DNS analysis
-- **Durable Objects**: Persistent storage for diagnostic history
-- **Cloudflare Pages**: Frontend hosting
-- **React**: UI framework
-- **TypeScript**: Type safety
-- **Tailwind CSS**: Styling
-- **Vite**: Build tool
-- **React Query**: Data fetching and caching
 
 ## Author
 
