@@ -220,7 +220,7 @@ function App() {
       </section>
 
       {/* Results Section - Scrollable below */}
-      <main className="relative z-[5] bg-white pt-20">
+      <main className="relative z-[5] bg-white">
         <div
           ref={resultsRef}
           className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"

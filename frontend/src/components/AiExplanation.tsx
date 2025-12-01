@@ -17,16 +17,91 @@ export default function AiExplanation({ explanation }: AiExplanationProps) {
     return "Info";
   };
 
+  // Calculate overall health status
+  const getOverallHealth = () => {
+    if (!explanation.issues || explanation.issues.length === 0) {
+      return { status: "excellent", color: "green", message: "All Good!" };
+    }
+    const criticalIssues = explanation.issues.filter((i) => i.severity >= 8).length;
+    const warnings = explanation.issues.filter((i) => i.severity >= 5 && i.severity < 8).length;
+    
+    if (criticalIssues > 0) {
+      return { status: "needs-attention", color: "red", message: "Action Required" };
+    }
+    if (warnings > 0) {
+      return { status: "good", color: "yellow", message: "Mostly Good" };
+    }
+    return { status: "excellent", color: "green", message: "Looking Good" };
+  };
+
+  const health = getOverallHealth();
+
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-      <h2 className="text-2xl font-semibold mb-4">AI Analysis</h2>
+      <h2 className="text-2xl font-semibold mb-6">AI Analysis</h2>
 
-      {explanation.summary && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h3 className="font-medium mb-2">Summary</h3>
-          <p className="text-gray-700">{explanation.summary}</p>
+      {/* Enhanced Summary Section */}
+      <div className="mb-8 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Quick Summary
+            </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                health.color === "red" 
+                  ? "bg-red-100 text-red-800" 
+                  : health.color === "yellow"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-green-100 text-green-800"
+              }`}>
+                {health.message}
+              </span>
+              {explanation.issues && explanation.issues.length > 0 && (
+                <span className="text-sm text-gray-600">
+                  {explanation.issues.length} issue{explanation.issues.length !== 1 ? "s" : ""} found
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-      )}
+        
+        {explanation.summary ? (
+          <p className="text-gray-700 leading-relaxed text-base">
+            {explanation.summary}
+          </p>
+        ) : (
+          <p className="text-gray-700 leading-relaxed text-base">
+            {explanation.issues && explanation.issues.length > 0
+              ? `Your DNS configuration has ${explanation.issues.length} issue${explanation.issues.length !== 1 ? "s" : ""} that ${explanation.issues.length === 1 ? "needs" : "need"} attention. Review the details below for specific recommendations.`
+              : "Your DNS configuration looks good! No critical issues detected."}
+          </p>
+        )}
+
+        {/* Quick Stats */}
+        {explanation.issues && explanation.issues.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-300 flex gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500"></span>
+              <span className="text-gray-600">
+                {explanation.issues.filter((i) => i.severity >= 8).length} Critical
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+              <span className="text-gray-600">
+                {explanation.issues.filter((i) => i.severity >= 5 && i.severity < 8).length} Warnings
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span className="text-gray-600">
+                {explanation.issues.filter((i) => i.severity < 5).length} Info
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {explanation.issues && explanation.issues.length > 0 ? (
         <div className="space-y-4">
