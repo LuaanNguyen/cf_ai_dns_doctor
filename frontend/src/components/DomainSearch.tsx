@@ -14,28 +14,80 @@ export default function DomainSearch({
 
   /**
    * Extract domain from URL or return the input if it's already a domain
-   * Handles: https://chatgpt.com, http://www.example.com/path, chatgpt.com, etc.
+   * Handles: https://chatgpt.com, http://www.example.com/path, https://, http://, //example.com, etc.
    */
   const extractDomain = (input: string): string => {
     const trimmed = input.trim();
     if (!trimmed) return "";
 
     try {
-      // If it looks like a URL (starts with http:// or https://), parse it
-      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-        const url = new URL(trimmed);
-        let hostname = url.hostname;
-
-        // Remove www. prefix if present
-        if (hostname.startsWith("www.")) {
-          hostname = hostname.substring(4);
+      // Handle protocol-relative URLs (//example.com)
+      if (trimmed.startsWith("//")) {
+        try {
+          const url = new URL(`http:${trimmed}`);
+          let hostname = url.hostname;
+          if (hostname.startsWith("www.")) {
+            hostname = hostname.substring(4);
+          }
+          return hostname;
+        } catch {
+          // Fall through to manual extraction
         }
-
-        return hostname;
       }
 
-      // If it contains a path or query (has / or ?), try to extract domain
-      if (trimmed.includes("/") || trimmed.includes("?")) {
+      // Handle URLs with protocol (http://, https://)
+      if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+        // Check if it's just "https://" or "http://" without domain
+        if (
+          trimmed === "https://" ||
+          trimmed === "http://" ||
+          trimmed.match(/^https?:\/\/\s*$/)
+        ) {
+          return "";
+        }
+
+        try {
+          // URL constructor handles trailing slashes automatically
+          // e.g., "https://dns-doctor-frontend.pages.dev/" -> hostname = "dns-doctor-frontend.pages.dev"
+          const url = new URL(trimmed);
+          let hostname = url.hostname;
+
+          // Remove www. prefix if present
+          if (hostname.startsWith("www.")) {
+            hostname = hostname.substring(4);
+          }
+
+          return hostname;
+        } catch {
+          // If URL parsing fails, try manual extraction
+          // Remove protocol and extract domain
+          let withoutProtocol = trimmed.replace(/^https?:\/\//, "");
+          // Remove trailing slashes and whitespace
+          withoutProtocol = withoutProtocol.replace(/\/+\s*$/, "").trim();
+
+          if (!withoutProtocol) return "";
+
+          // Extract domain (everything before first /, ?, or #)
+          const domainMatch = withoutProtocol.match(/^([^\/\?#\s]+)/);
+          if (domainMatch) {
+            let domain = domainMatch[1];
+            // Remove port if present
+            domain = domain.split(":")[0];
+            // Remove www. prefix
+            if (domain.startsWith("www.")) {
+              domain = domain.substring(4);
+            }
+            return domain;
+          }
+        }
+      }
+
+      // If it contains a path, query, or fragment (has /, ?, or #), try to extract domain
+      if (
+        trimmed.includes("/") ||
+        trimmed.includes("?") ||
+        trimmed.includes("#")
+      ) {
         // Try to parse as URL by adding protocol if missing
         try {
           const url = new URL(
@@ -61,7 +113,7 @@ export default function DomainSearch({
             if (extracted.startsWith("www.")) {
               extracted = extracted.substring(4);
             }
-            // Remove trailing path/query
+            // Remove trailing path/query/fragment
             const pathIndex = extracted.indexOf("/");
             if (pathIndex > -1) {
               extracted = extracted.substring(0, pathIndex);
@@ -69,6 +121,10 @@ export default function DomainSearch({
             const queryIndex = extracted.indexOf("?");
             if (queryIndex > -1) {
               extracted = extracted.substring(0, queryIndex);
+            }
+            const fragmentIndex = extracted.indexOf("#");
+            if (fragmentIndex > -1) {
+              extracted = extracted.substring(0, fragmentIndex);
             }
             return extracted;
           }
@@ -83,8 +139,8 @@ export default function DomainSearch({
       // Return as-is if it looks like a domain
       return trimmed;
     } catch {
-      // If all parsing fails, return trimmed input
-      return trimmed.replace(/^www\./, "");
+      // If all parsing fails, return trimmed input with www. removed
+      return trimmed.replace(/^www\./, "").replace(/^https?:\/\//, "");
     }
   };
 
@@ -125,17 +181,17 @@ export default function DomainSearch({
             type="text"
             value={domain}
             onChange={(e) => {
-              const inputValue = e.target.value;
-              // Automatically extract domain from URL if user pastes a URL
-              const extractedDomain = extractDomain(inputValue);
-              setDomain(extractedDomain);
+              // Allow free typing - don't extract domain while typing
+              // Domain extraction happens on paste or submit
+              setDomain(e.target.value);
               setError("");
             }}
             onPaste={(e) => {
               // Handle paste events to extract domain from URLs
               const pastedText = e.clipboardData.getData("text");
               const extractedDomain = extractDomain(pastedText);
-              if (extractedDomain !== pastedText.trim()) {
+              // Only extract if we got a valid domain, otherwise let user continue typing
+              if (extractedDomain && extractedDomain !== pastedText.trim()) {
                 e.preventDefault();
                 setDomain(extractedDomain);
                 setError("");
